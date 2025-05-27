@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -12,26 +13,34 @@ public class ElectricMeterDataController : ControllerBase
         _context = context;
     }
 
-    [HttpGet]
+    [HttpPost("generate")]
     public async Task<ActionResult<ElectricMeterData>> GenerateData()
     {
         var count = await _context.ElectricMeterData.CountAsync();
-        var sensorId = $"{count + 1}_elec_meter_location";
 
         var lat = Math.Round(Random.Shared.NextDouble() * 90, 6);
         var lon = Math.Round(Random.Shared.NextDouble() * 180, 6);
-        var locationJson = $"{{\"lat\": {lat}, \"lon\": {lon}}}";
+
+        // Round to whole numbers
+        var newLat = Math.Round(lat);
+        var newLon = Math.Round(lon);
+
+        // Create JSON using the whole number values
+        var locationJson = $"{{\"lat\": {newLat}, \"lon\": {newLon}}}";
+
+        var sensorId = $"{count + 1}_elec_meter_{newLat}{newLon}";
 
         var data = new ElectricMeterData
         {
             SensorId = sensorId,
+            Sensor_type = "electric_meter",
+            Location = locationJson,
             HouseholdId = $"H{Random.Shared.Next(1000, 9999)}",
             HouseArea = $"{Random.Shared.Next(30, 150)}sqm",
             ConsumptionKWh = Math.Round(Random.Shared.NextDouble() * 100, 2),
             MeterStatus = Random.Shared.Next(0, 2) == 0 ? "active" : "inactive",
             BillingCycle = DateTime.UtcNow.ToString("yyyy-MM"),
             Timestamp = DateTime.UtcNow,
-            Location = locationJson
         };
 
         _context.ElectricMeterData.Add(data);
@@ -55,11 +64,17 @@ public class ElectricMeterDataController : ControllerBase
     }
 
     [HttpPut("{sensorId}")]
-    public async Task<IActionResult> Update(string sensorId, ElectricMeterData data)
+    public async Task<IActionResult> UpdateLocation(string sensorId, [FromBody] LocationUpdateModel update)
     {
-        if (sensorId != data.SensorId) return BadRequest();
+        if (sensorId != update.SensorId)
+            return BadRequest("Sensor ID in URL and body do not match.");
 
-        _context.Entry(data).State = EntityState.Modified;
+        var entity = await _context.ElectricMeterData.FirstOrDefaultAsync(w => w.SensorId == sensorId);
+        if (entity == null)
+            return NotFound("Sensor not found.");
+
+        // Update location
+        entity.Location = JsonSerializer.Serialize(new { lat = update.Lat, lon = update.Lon });
 
         try
         {
@@ -67,12 +82,10 @@ public class ElectricMeterDataController : ControllerBase
         }
         catch (DbUpdateConcurrencyException)
         {
-            if (!_context.ElectricMeterData.Any(e => e.SensorId == sensorId))
-                return NotFound();
-            throw;
+            return StatusCode(500, "A concurrency error occurred while updating.");
         }
 
-        return NoContent();
+        return Ok(new { message = "Location updated successfully" });
     }
 
     [HttpDelete("{sensorId}")]

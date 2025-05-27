@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -12,15 +13,23 @@ public class ResidentCountDataController : ControllerBase
         _context = context;
     }
 
-    [HttpGet]
+    [HttpPost("generate")]
     public async Task<ActionResult<ResidentCountData>> GenerateData()
     {
         var count = await _context.ResidentCountData.CountAsync();
-        var sensorId = $"{count + 1}_resident_block";
+
 
         var lat = Math.Round(Random.Shared.NextDouble() * 90, 6);
         var lon = Math.Round(Random.Shared.NextDouble() * 180, 6);
-        var locationJson = $"{{\"lat\": {lat}, \"lon\": {lon}}}";
+
+        // Round to whole numbers
+        var newLat = Math.Round(lat);
+        var newLon = Math.Round(lon);
+
+        // Create JSON using the whole number values
+        var locationJson = $"{{\"lat\": {newLat}, \"lon\": {newLon}}}";
+
+        var sensorId = $"{count + 1}_resident_{newLat}{newLon}";
 
         var block = $"Block {(char)('A' + Random.Shared.Next(0, 10))}";
         var residents = Random.Shared.Next(50, 500);
@@ -29,11 +38,12 @@ public class ResidentCountDataController : ControllerBase
         var data = new ResidentCountData
         {
             SensorId = sensorId,
+            Sensor_type = "resident",
+            Location = locationJson,
             ResidentialBlock = block,
             NumberOfResidents = residents,
             NumberOfHouseholds = households,
             Timestamp = DateTime.UtcNow,
-            Location = locationJson
         };
 
         _context.ResidentCountData.Add(data);
@@ -57,24 +67,27 @@ public class ResidentCountDataController : ControllerBase
     }
 
     [HttpPut("{sensorId}")]
-    public async Task<IActionResult> Update(string sensorId, ResidentCountData data)
+    public async Task<IActionResult> UpdateLocation(string sensorId, [FromBody] LocationUpdateModel update)
     {
-        if (sensorId != data.SensorId) return BadRequest();
+        if (sensorId != update.SensorId)
+            return BadRequest("Sensor ID in URL and body do not match.");
 
-        _context.Entry(data).State = EntityState.Modified;
+        var entity = await _context.ResidentCountData.FirstOrDefaultAsync(w => w.SensorId == sensorId);
+        if (entity == null)
+            return NotFound("Sensor not found.");
 
+        // Update location
+        entity.Location = JsonSerializer.Serialize(new { lat = update.Lat, lon = update.Lon });
         try
         {
             await _context.SaveChangesAsync();
         }
         catch (DbUpdateConcurrencyException)
         {
-            if (!_context.ResidentCountData.Any(e => e.SensorId == sensorId))
-                return NotFound();
-            throw;
+            return StatusCode(500, "A concurrency error occurred while updating.");
         }
 
-        return NoContent();
+        return Ok(new { message = "Location updated successfully" });
     }
 
     [HttpDelete("{sensorId}")]

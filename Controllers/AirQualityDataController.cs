@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -12,15 +13,22 @@ public class AirQualityDataController : ControllerBase
         _context = context;
     }
 
-    [HttpGet]
+    [HttpPost("generate")]
     public async Task<ActionResult<AirQualityData>> GenerateData()
     {
         var count = await _context.AirQualityData.CountAsync();
-        var sensorId = $"{count + 1}_air_location";
+
 
         var lat = Math.Round(Random.Shared.NextDouble() * 90, 6);
         var lon = Math.Round(Random.Shared.NextDouble() * 180, 6);
-        var locationJson = $"{{\"lat\": {lat}, \"lon\": {lon}}}";
+        // Round to whole numbers
+        var newLat = Math.Round(lat);
+        var newLon = Math.Round(lon);
+
+        // Create JSON using the whole number values
+        var locationJson = $"{{\"lat\": {newLat}, \"lon\": {newLon}}}";
+
+        var sensorId = $"{count + 1}_air_{newLat}{newLon}";
 
         var aqi = Random.Shared.Next(0, 300);
         string category = aqi switch
@@ -36,6 +44,8 @@ public class AirQualityDataController : ControllerBase
         var data = new AirQualityData
         {
             SensorId = sensorId,
+            Sensor_type = "air_quality",
+            Location = locationJson,
             AQI = aqi,
             Category = category,
             PM2_5 = Math.Round(Random.Shared.NextDouble() * 150, 1),
@@ -44,7 +54,6 @@ public class AirQualityDataController : ControllerBase
             CO = Math.Round(Random.Shared.NextDouble() * 5, 2),
             O3 = Math.Round(Random.Shared.NextDouble() * 120, 1),
             Timestamp = DateTime.UtcNow,
-            Location = locationJson
         };
 
         _context.AirQualityData.Add(data);
@@ -68,24 +77,27 @@ public class AirQualityDataController : ControllerBase
     }
 
     [HttpPut("{sensorId}")]
-    public async Task<IActionResult> Update(string sensorId, AirQualityData data)
+    public async Task<IActionResult> UpdateLocation(string sensorId, [FromBody] LocationUpdateModel update)
     {
-        if (sensorId != data.SensorId) return BadRequest();
+        if (sensorId != update.SensorId)
+            return BadRequest("Sensor ID in URL and body do not match.");
 
-        _context.Entry(data).State = EntityState.Modified;
+        var entity = await _context.ElectricMeterData.FirstOrDefaultAsync(w => w.SensorId == sensorId);
+        if (entity == null)
+            return NotFound("Sensor not found.");
 
+        // Update location
+        entity.Location = JsonSerializer.Serialize(new { lat = update.Lat, lon = update.Lon });
         try
         {
             await _context.SaveChangesAsync();
         }
         catch (DbUpdateConcurrencyException)
         {
-            if (!_context.AirQualityData.Any(e => e.SensorId == sensorId))
-                return NotFound();
-            throw;
+            return StatusCode(500, "A concurrency error occurred while updating.");
         }
 
-        return NoContent();
+        return Ok(new { message = "Location updated successfully" });
     }
 
     [HttpDelete("{sensorId}")]

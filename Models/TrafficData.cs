@@ -5,6 +5,7 @@ public class TrafficData
 {
     [Key]
     public string SensorId { get; set; }
+    public string Sensor_type { get; set; }
     public int VehicleCount { get; set; }
     public double AverageSpeedKmph { get; set; }
     public string TrafficCongestionLevel { get; set; }

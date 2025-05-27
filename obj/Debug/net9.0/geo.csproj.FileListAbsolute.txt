@@ -135,3 +135,4 @@ D:\company\dotnet\First\geo\obj\Debug\net9.0\refint\geo.dll
 D:\company\dotnet\First\geo\obj\Debug\net9.0\geo.pdb
 D:\company\dotnet\First\geo\obj\Debug\net9.0\geo.genruntimeconfig.cache
 D:\company\dotnet\First\geo\obj\Debug\net9.0\ref\geo.dll
+D:\company\dotnet\First\geo\obj\Debug\net9.0\geo.sourcelink.json

@@ -6,6 +6,8 @@ public class AirQualityData
     [Key]
     public string SensorId { get; set; }
 
+    public string Sensor_type { get; set; }
+
     public int AQI { get; set; }
 
     public string Category { get; set; }

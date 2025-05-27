@@ -6,6 +6,8 @@ public class ElectricMeterData
     [Key]
     public string SensorId { get; set; }
 
+    public string Sensor_type { get; set; }
+
     public string HouseholdId { get; set; }
     public string HouseArea { get; set; }
     public double ConsumptionKWh { get; set; }

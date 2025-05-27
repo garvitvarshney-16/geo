@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -12,15 +13,24 @@ public class TrafficDataController : ControllerBase
         _context = context;
     }
 
-    [HttpGet]
+    [HttpPost("generate")]
+    /// <summary>
+    /// Generates a new traffic data point with random values and stores it in the database.
     public async Task<ActionResult<TrafficData>> GenerateData()
     {
         var count = await _context.TrafficData.CountAsync();
-        var sensorId = $"{count + 1}_cctv_traffic_location";
 
         var lat = Math.Round(Random.Shared.NextDouble() * 90, 6);
         var lon = Math.Round(Random.Shared.NextDouble() * 180, 6);
-        var locationJson = $"{{\"lat\": {lat}, \"lon\": {lon}}}";
+
+        // Round to whole numbers
+        var newLat = Math.Round(lat);
+        var newLon = Math.Round(lon);
+
+        // Create JSON using the whole number values
+        var locationJson = $"{{\"lat\": {newLat}, \"lon\": {newLon}}}";
+
+        var sensorId = $"{count + 1}_cctv_traffic_{newLat}{newLon}";
 
         var vehicleCount = Random.Shared.Next(100, 1000);
         var avgSpeed = Math.Round(Random.Shared.NextDouble() * 60, 1);
@@ -36,13 +46,14 @@ public class TrafficDataController : ControllerBase
         var data = new TrafficData
         {
             SensorId = sensorId,
+            Sensor_type = "traffic",
+            Location = locationJson,
             VehicleCount = vehicleCount,
             AverageSpeedKmph = avgSpeed,
             TrafficCongestionLevel = congestionLevel,
             SignalViolations = signalViolations,
             AccidentsReported = accidentsReported,
             Timestamp = DateTime.UtcNow,
-            Location = locationJson
         };
 
         _context.TrafficData.Add(data);
@@ -66,11 +77,17 @@ public class TrafficDataController : ControllerBase
     }
 
     [HttpPut("{sensorId}")]
-    public async Task<IActionResult> Update(string sensorId, TrafficData data)
+    public async Task<IActionResult> UpdateLocation(string sensorId, [FromBody] LocationUpdateModel update)
     {
-        if (sensorId != data.SensorId) return BadRequest();
+        if (sensorId != update.SensorId)
+            return BadRequest("Sensor ID in URL and body do not match.");
 
-        _context.Entry(data).State = EntityState.Modified;
+        var entity = await _context.TrafficData.FirstOrDefaultAsync(w => w.SensorId == sensorId);
+        if (entity == null)
+            return NotFound("Sensor not found.");
+
+        // Update location
+        entity.Location = JsonSerializer.Serialize(new { lat = update.Lat, lon = update.Lon });
 
         try
         {
@@ -78,12 +95,10 @@ public class TrafficDataController : ControllerBase
         }
         catch (DbUpdateConcurrencyException)
         {
-            if (!_context.TrafficData.Any(e => e.SensorId == sensorId))
-                return NotFound();
-            throw;
+            return StatusCode(500, "A concurrency error occurred while updating.");
         }
 
-        return NoContent();
+        return Ok(new { message = "Location updated successfully" });
     }
 
     [HttpDelete("{sensorId}")]
