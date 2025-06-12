@@ -61,9 +61,18 @@ public class ResidentCountDataController : ControllerBase
     }
 
     [HttpGet("all")]
-    public async Task<ActionResult<IEnumerable<ResidentCountData>>> GetAll()
+    public async Task<ActionResult<Dictionary<string, ResidentCountData>>> GetAll()
     {
-        return await _context.ResidentCountData.ToListAsync();
+        var dataList = await _context.ResidentCountData.ToListAsync();
+        var indexedJson = dataList
+        .Select((data, index) => new
+        {
+            Index = (index + 1).ToString(),
+            Data = data
+        })
+            .ToDictionary(item => item.Index, item => item.Data);
+
+        return Ok(indexedJson);
     }
 
     [HttpPut("{sensorId}")]

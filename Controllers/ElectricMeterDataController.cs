@@ -58,9 +58,18 @@ public class ElectricMeterDataController : ControllerBase
     }
 
     [HttpGet("all")]
-    public async Task<ActionResult<IEnumerable<ElectricMeterData>>> GetAll()
+    public async Task<ActionResult<Dictionary<string, ElectricMeterData>>> GetAll()
     {
-        return await _context.ElectricMeterData.ToListAsync();
+        var dataList = await _context.ElectricMeterData.ToListAsync();
+        var indexedJson = dataList
+        .Select((data, index) => new
+        {
+            Index = (index + 1).ToString(),
+            Data = data
+        })
+            .ToDictionary(item => item.Index, item => item.Data);
+
+        return Ok(indexedJson);
     }
 
     [HttpPut("{sensorId}")]

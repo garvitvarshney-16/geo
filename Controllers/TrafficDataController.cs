@@ -71,9 +71,18 @@ public class TrafficDataController : ControllerBase
     }
 
     [HttpGet("all")]
-    public async Task<ActionResult<IEnumerable<TrafficData>>> GetAll()
+    public async Task<ActionResult<Dictionary<string, TrafficData>>> GetAll()
     {
-        return await _context.TrafficData.ToListAsync();
+        var dataList = await _context.TrafficData.ToListAsync();
+        var indexedJson = dataList
+        .Select((data, index) => new
+        {
+            Index = (index + 1).ToString(),
+            Data = data
+        })
+            .ToDictionary(item => item.Index, item => item.Data);
+
+        return Ok(indexedJson);
     }
 
     [HttpPut("{sensorId}")]

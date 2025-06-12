@@ -69,11 +69,19 @@ public class WaterQualityDataController : ControllerBase
 
     [HttpGet("all")]
     /// <summary>
-    /// Retrieves all water quality data points from the database.
-    public async Task<ActionResult<IEnumerable<WaterQualityData>>> GetAll()
+    /// Retrieves all water quality data points from the database in a numbered JSON object format.
+    /// </summary>
+    public async Task<ActionResult<Dictionary<string, WaterQualityData>>> GetAll()
     {
-        return await _context.WaterQualityData.ToListAsync();
+        var dataList = await _context.WaterQualityData.ToListAsync();
+
+        var indexedJson = dataList
+            .Select((data, index) => new { Index = (index + 1).ToString(), Data = data })
+            .ToDictionary(item => item.Index, item => item.Data);
+
+        return Ok(indexedJson);
     }
+
 
     [HttpPut("{sensorId}")]
     /// <summary>

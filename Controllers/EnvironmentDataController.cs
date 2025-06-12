@@ -61,9 +61,18 @@ public class EnvironmentDataController : ControllerBase
 
     // GET all
     [HttpGet("all")]
-    public async Task<ActionResult<IEnumerable<EnvironmentData>>> GetAll()
+    public async Task<ActionResult<Dictionary<string, EnvironmentData>>> GetAll()
     {
-        return await _context.EnvironmentData.ToListAsync();
+        var dataList = await _context.EnvironmentData.ToListAsync();
+        var indexedJson = dataList
+        .Select((data, index) => new
+        {
+            Index = (index + 1).ToString(),
+            Data = data
+        })
+            .ToDictionary(item => item.Index, item => item.Data);
+
+        return Ok(indexedJson);
     }
 
     // PUT (update)

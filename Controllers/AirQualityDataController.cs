@@ -71,9 +71,18 @@ public class AirQualityDataController : ControllerBase
     }
 
     [HttpGet("all")]
-    public async Task<ActionResult<IEnumerable<AirQualityData>>> GetAll()
+    public async Task<ActionResult<Dictionary<string, AirQualityData>>> GetAll()
     {
-        return await _context.AirQualityData.ToListAsync();
+        var dataList = await _context.AirQualityData.ToListAsync();
+        var indexedJson = dataList
+        .Select((data, index) => new
+        {
+            Index = (index + 1).ToString(),
+            Data = data
+        })
+            .ToDictionary(item => item.Index, item => item.Data);
+
+        return Ok(indexedJson);
     }
 
     [HttpPut("{sensorId}")]
