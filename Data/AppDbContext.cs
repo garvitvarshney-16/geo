@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using YourNamespace.Models;
 
 public class AppDbContext : DbContext
 {
@@ -16,6 +17,8 @@ public class AppDbContext : DbContext
 
     public DbSet<TrafficData> TrafficData { get; set; }
 
+    public DbSet<VisualizationData> VisualizationData { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -26,6 +29,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<ElectricMeterData>().OwnsOne(w => w.Location);
         modelBuilder.Entity<ResidentCountData>().OwnsOne(w => w.Location);
         modelBuilder.Entity<TrafficData>().OwnsOne(w => w.Location);
+        modelBuilder.Entity<VisualizationData>().OwnsOne(v => v.Volume);
     }
 
 
