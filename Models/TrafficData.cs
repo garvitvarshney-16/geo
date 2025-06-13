@@ -12,5 +12,7 @@ public class TrafficData
     public int SignalViolations { get; set; }
     public int AccidentsReported { get; set; }
     public DateTime Timestamp { get; set; }
-    public string Location { get; set; }
+    public Location Location { get; set; }
 }
+
+

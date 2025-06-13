@@ -15,5 +15,5 @@ public class EnvironmentData
     public DateTime Timestamp { get; set; }
 
     // Store JSON string
-    public string Location { get; set; } = "{}";
+    public Location Location { get; set; }
 }

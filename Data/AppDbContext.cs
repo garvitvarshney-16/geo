@@ -17,4 +17,16 @@ public class AppDbContext : DbContext
     public DbSet<TrafficData> TrafficData { get; set; }
 
 
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<WaterQualityData>().OwnsOne(w => w.Location);
+        modelBuilder.Entity<WaterQualityData>().OwnsOne(w => w.ContaminantsPpm);
+        modelBuilder.Entity<EnvironmentData>().OwnsOne(w => w.Location);
+        modelBuilder.Entity<AirQualityData>().OwnsOne(w => w.Location);
+        modelBuilder.Entity<ElectricMeterData>().OwnsOne(w => w.Location);
+        modelBuilder.Entity<ResidentCountData>().OwnsOne(w => w.Location);
+        modelBuilder.Entity<TrafficData>().OwnsOne(w => w.Location);
+    }
+
+
 }

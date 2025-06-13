@@ -34,7 +34,11 @@ public class ElectricMeterDataController : ControllerBase
         {
             SensorId = sensorId,
             Sensor_type = "electric_meter",
-            Location = locationJson,
+            Location = new Location
+            {
+                Lat = newLat,
+                Lon = newLon
+            },
             HouseholdId = $"H{Random.Shared.Next(1000, 9999)}",
             HouseArea = $"{Random.Shared.Next(30, 150)}sqm",
             ConsumptionKWh = Math.Round(Random.Shared.NextDouble() * 100, 2),
@@ -83,7 +87,7 @@ public class ElectricMeterDataController : ControllerBase
             return NotFound("Sensor not found.");
 
         // Update location
-        entity.Location = JsonSerializer.Serialize(new { lat = update.Lat, lon = update.Lon });
+        entity.Location = new Location { Lat = update.Lat, Lon = update.Lon };;
 
         try
         {

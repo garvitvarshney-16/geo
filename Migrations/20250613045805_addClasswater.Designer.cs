@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace geo.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250613045805_addClasswater")]
+    partial class addClasswater
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -33,6 +36,10 @@ namespace geo.Migrations
                         .HasColumnType("double precision");
 
                     b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Location")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -80,6 +87,10 @@ namespace geo.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("MeterStatus")
                         .IsRequired()
                         .HasColumnType("text");
@@ -103,6 +114,10 @@ namespace geo.Migrations
 
                     b.Property<double>("HumidityPercent")
                         .HasColumnType("double precision");
+
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<double>("NoiseLevelDb")
                         .HasColumnType("double precision");
@@ -128,6 +143,10 @@ namespace geo.Migrations
             modelBuilder.Entity("ResidentCountData", b =>
                 {
                     b.Property<string>("SensorId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Location")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("NumberOfHouseholds")
@@ -162,6 +181,10 @@ namespace geo.Migrations
 
                     b.Property<double>("AverageSpeedKmph")
                         .HasColumnType("double precision");
+
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Sensor_type")
                         .IsRequired()
@@ -209,131 +232,6 @@ namespace geo.Migrations
                     b.HasKey("SensorId");
 
                     b.ToTable("WaterQualityData");
-                });
-
-            modelBuilder.Entity("AirQualityData", b =>
-                {
-                    b.OwnsOne("Location", "Location", b1 =>
-                        {
-                            b1.Property<string>("AirQualityDataSensorId")
-                                .HasColumnType("text");
-
-                            b1.Property<double>("Lat")
-                                .HasColumnType("double precision");
-
-                            b1.Property<double>("Lon")
-                                .HasColumnType("double precision");
-
-                            b1.HasKey("AirQualityDataSensorId");
-
-                            b1.ToTable("AirQualityData");
-
-                            b1.WithOwner()
-                                .HasForeignKey("AirQualityDataSensorId");
-                        });
-
-                    b.Navigation("Location")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("ElectricMeterData", b =>
-                {
-                    b.OwnsOne("Location", "Location", b1 =>
-                        {
-                            b1.Property<string>("ElectricMeterDataSensorId")
-                                .HasColumnType("text");
-
-                            b1.Property<double>("Lat")
-                                .HasColumnType("double precision");
-
-                            b1.Property<double>("Lon")
-                                .HasColumnType("double precision");
-
-                            b1.HasKey("ElectricMeterDataSensorId");
-
-                            b1.ToTable("ElectricMeterData");
-
-                            b1.WithOwner()
-                                .HasForeignKey("ElectricMeterDataSensorId");
-                        });
-
-                    b.Navigation("Location")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("EnvironmentData", b =>
-                {
-                    b.OwnsOne("Location", "Location", b1 =>
-                        {
-                            b1.Property<string>("EnvironmentDataSensorId")
-                                .HasColumnType("text");
-
-                            b1.Property<double>("Lat")
-                                .HasColumnType("double precision");
-
-                            b1.Property<double>("Lon")
-                                .HasColumnType("double precision");
-
-                            b1.HasKey("EnvironmentDataSensorId");
-
-                            b1.ToTable("EnvironmentData");
-
-                            b1.WithOwner()
-                                .HasForeignKey("EnvironmentDataSensorId");
-                        });
-
-                    b.Navigation("Location")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("ResidentCountData", b =>
-                {
-                    b.OwnsOne("Location", "Location", b1 =>
-                        {
-                            b1.Property<string>("ResidentCountDataSensorId")
-                                .HasColumnType("text");
-
-                            b1.Property<double>("Lat")
-                                .HasColumnType("double precision");
-
-                            b1.Property<double>("Lon")
-                                .HasColumnType("double precision");
-
-                            b1.HasKey("ResidentCountDataSensorId");
-
-                            b1.ToTable("ResidentCountData");
-
-                            b1.WithOwner()
-                                .HasForeignKey("ResidentCountDataSensorId");
-                        });
-
-                    b.Navigation("Location")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("TrafficData", b =>
-                {
-                    b.OwnsOne("Location", "Location", b1 =>
-                        {
-                            b1.Property<string>("TrafficDataSensorId")
-                                .HasColumnType("text");
-
-                            b1.Property<double>("Lat")
-                                .HasColumnType("double precision");
-
-                            b1.Property<double>("Lon")
-                                .HasColumnType("double precision");
-
-                            b1.HasKey("TrafficDataSensorId");
-
-                            b1.ToTable("TrafficData");
-
-                            b1.WithOwner()
-                                .HasForeignKey("TrafficDataSensorId");
-                        });
-
-                    b.Navigation("Location")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("WaterQualityData", b =>

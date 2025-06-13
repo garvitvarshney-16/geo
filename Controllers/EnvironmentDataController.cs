@@ -35,7 +35,11 @@ public class EnvironmentDataController : ControllerBase
         {
             SensorId = sensorId,
             Sensor_type = "environment",
-            Location = locationJson,
+            Location = new Location
+            {
+                Lat = newLat,
+                Lon = newLon
+            },
             TemperatureCelsius = Random.Shared.NextDouble() * 15 + 20,
             HumidityPercent = Random.Shared.Next(30, 70),
             UvIndex = Math.Round(Random.Shared.NextDouble() * 10, 1),
@@ -87,7 +91,7 @@ public class EnvironmentDataController : ControllerBase
             return NotFound("Sensor not found.");
 
         // Update location
-        entity.Location = JsonSerializer.Serialize(new { lat = update.Lat, lon = update.Lon });
+        entity.Location = new Location { Lat = update.Lat, Lon = update.Lon };;
 
         try
         {

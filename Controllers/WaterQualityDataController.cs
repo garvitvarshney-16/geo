@@ -14,8 +14,6 @@ public class WaterQualityDataController : ControllerBase
     }
 
     [HttpPost("generate")]
-    /// <summary>
-    /// Generates a new water quality data point with random values and stores it in the database.
     public async Task<ActionResult<WaterQualityData>> GenerateData()
     {
         var count = await _context.WaterQualityData.CountAsync();
@@ -23,31 +21,28 @@ public class WaterQualityDataController : ControllerBase
         var lat = Math.Round(Random.Shared.NextDouble() * 90, 6);
         var lon = Math.Round(Random.Shared.NextDouble() * 180, 6);
 
-        // Round to whole numbers
         var newLat = Math.Round(lat);
         var newLon = Math.Round(lon);
 
-        // Create JSON using the whole number values
-        var locationJson = $"{{\"lat\": {newLat}, \"lon\": {newLon}}}";
-
         var sensorId = $"{count + 1}_water_{newLat}{newLon}";
-
-        var contaminants = new
-        {
-            lead = Math.Round(Random.Shared.NextDouble() * 0.05, 4),
-            arsenic = Math.Round(Random.Shared.NextDouble() * 0.01, 4)
-        };
-        var contaminantsJson = JsonSerializer.Serialize(contaminants);
 
         var data = new WaterQualityData
         {
             SensorId = sensorId,
             Sensor_type = "water_quality",
-            Location = locationJson,
-            PhLevel = Math.Round(Random.Shared.NextDouble() * 2 + 6, 2), // 6.0 - 8.0
+            Location = new Location
+            {
+                Lat = newLat,
+                Lon = newLon
+            },
+            PhLevel = Math.Round(Random.Shared.NextDouble() * 2 + 6, 2),
             TurbidityNTU = Math.Round(Random.Shared.NextDouble() * 5, 2),
-            DissolvedOxygenMgPerL = Math.Round(Random.Shared.NextDouble() * 4 + 5, 2), // 5.0 - 9.0
-            ContaminantsPpm = contaminantsJson,
+            DissolvedOxygenMgPerL = Math.Round(Random.Shared.NextDouble() * 4 + 5, 2),
+            ContaminantsPpm = new Contaminants
+            {
+                Lead = Math.Round(Random.Shared.NextDouble() * 0.05, 4),
+                Arsenic = Math.Round(Random.Shared.NextDouble() * 0.01, 4)
+            },
             Timestamp = DateTime.UtcNow,
         };
 
@@ -56,6 +51,7 @@ public class WaterQualityDataController : ControllerBase
 
         return CreatedAtAction(nameof(GetById), new { sensorId = data.SensorId }, data);
     }
+
 
     [HttpGet("{sensorId}")]
     /// <summary>
@@ -96,7 +92,7 @@ public class WaterQualityDataController : ControllerBase
             return NotFound("Sensor not found.");
 
         // Update location
-        entity.Location = JsonSerializer.Serialize(new { lat = update.Lat, lon = update.Lon });
+        entity.Location = new Location { Lat = update.Lat, Lon = update.Lon };
 
         // Build new SensorId based on lat and lon
         // string prefix = sensorId.Substring(0, sensorId.LastIndexOf('_') + 1); // "27_water_"

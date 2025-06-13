@@ -15,5 +15,5 @@ public class ElectricMeterData
     public string BillingCycle { get; set; }
 
     public DateTime Timestamp { get; set; }
-    public string Location { get; set; }
+    public Location Location { get; set; }
 }

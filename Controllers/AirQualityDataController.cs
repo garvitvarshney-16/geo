@@ -45,7 +45,11 @@ public class AirQualityDataController : ControllerBase
         {
             SensorId = sensorId,
             Sensor_type = "air_quality",
-            Location = locationJson,
+            Location = new Location
+            {
+                Lat = newLat,
+                Lon = newLon
+            },
             AQI = aqi,
             Category = category,
             PM2_5 = Math.Round(Random.Shared.NextDouble() * 150, 1),
@@ -96,7 +100,7 @@ public class AirQualityDataController : ControllerBase
             return NotFound("Sensor not found.");
 
         // Update location
-        entity.Location = JsonSerializer.Serialize(new { lat = update.Lat, lon = update.Lon });
+        entity.Location = new Location { Lat = update.Lat, Lon = update.Lon };
         try
         {
             await _context.SaveChangesAsync();

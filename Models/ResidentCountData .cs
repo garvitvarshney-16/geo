@@ -10,5 +10,5 @@ public class ResidentCountData
     public int NumberOfResidents { get; set; }
     public int NumberOfHouseholds { get; set; }
     public DateTime Timestamp { get; set; }
-    public string Location { get; set; }
+    public Location Location { get; set; }
 }

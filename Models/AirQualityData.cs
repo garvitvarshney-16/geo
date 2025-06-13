@@ -24,5 +24,5 @@ public class AirQualityData
 
     public DateTime Timestamp { get; set; }
 
-    public string Location { get; set; }
+    public Location Location { get; set; }
 }

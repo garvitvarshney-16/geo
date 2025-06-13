@@ -39,7 +39,11 @@ public class ResidentCountDataController : ControllerBase
         {
             SensorId = sensorId,
             Sensor_type = "resident",
-            Location = locationJson,
+            Location = new Location
+            {
+                Lat = newLat,
+                Lon = newLon
+            },
             ResidentialBlock = block,
             NumberOfResidents = residents,
             NumberOfHouseholds = households,
@@ -86,7 +90,7 @@ public class ResidentCountDataController : ControllerBase
             return NotFound("Sensor not found.");
 
         // Update location
-        entity.Location = JsonSerializer.Serialize(new { lat = update.Lat, lon = update.Lon });
+        entity.Location = new Location { Lat = update.Lat, Lon = update.Lon };;
         try
         {
             await _context.SaveChangesAsync();

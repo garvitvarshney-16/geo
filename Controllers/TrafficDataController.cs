@@ -47,7 +47,11 @@ public class TrafficDataController : ControllerBase
         {
             SensorId = sensorId,
             Sensor_type = "traffic",
-            Location = locationJson,
+            Location = new Location
+            {
+                Lat = newLat,
+                Lon = newLon
+            },
             VehicleCount = vehicleCount,
             AverageSpeedKmph = avgSpeed,
             TrafficCongestionLevel = congestionLevel,
@@ -96,7 +100,7 @@ public class TrafficDataController : ControllerBase
             return NotFound("Sensor not found.");
 
         // Update location
-        entity.Location = JsonSerializer.Serialize(new { lat = update.Lat, lon = update.Lon });
+        entity.Location = new Location { Lat = update.Lat, Lon = update.Lon };;
 
         try
         {

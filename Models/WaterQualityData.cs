@@ -9,7 +9,7 @@ public class WaterQualityData
 
     public string Sensor_type { get; set; }
 
-    public string Location { get; set; }
+    public Location Location { get; set; }
 
     public double PhLevel { get; set; }
 
@@ -18,7 +18,26 @@ public class WaterQualityData
     public double DissolvedOxygenMgPerL { get; set; }
 
     // JSON string for contaminants
-    public string ContaminantsPpm { get; set; }
+    public Contaminants ContaminantsPpm { get; set; }
 
     public DateTime Timestamp { get; set; }
 }
+
+
+public class Location
+{
+    public double Lat { get; set; }
+    public double Lon { get; set; }
+}
+
+public class Contaminants
+{
+    public double Lead { get; set; }
+    public double Arsenic { get; set; }
+}
+
+
+
+
+// dotnet ef migrations add InitialCreate
+// dotnet ef database update
