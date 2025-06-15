@@ -18,8 +18,8 @@ namespace YourNamespace.Controllers
         [HttpPost("volume")]
         public async Task<IActionResult> PostVolumeData([FromBody] VisualizationDataDto input)
         {
-            if (input == null || input.Volume == null)
-                return BadRequest("Invalid input data.");
+            // if (input == null || input.Volume == null)
+            //     return BadRequest("Invalid input data.");
 
             var newData = new VisualizationData
             {
