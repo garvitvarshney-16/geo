@@ -1,3 +1,7 @@
+
+
+using System.Text.Json;
+
 namespace YourNamespace.Models
 {
     public class VisualizationDataDto
@@ -7,6 +11,14 @@ namespace YourNamespace.Models
         public Guid ConstructionStageMasterId { get; set; }
         public VolumeDetails Volume { get; set; }
         public string Status { get; set; }
+
+        public decimal Chainage_to { get; set; }
+
+        public decimal Chainage_from { get; set; }
+
+        public decimal mean_elev { get; set; }
+
+        public JsonDocument? GeometryJson { get; set; }
 
         public string Stage { get; set; }
     }

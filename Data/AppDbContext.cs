@@ -30,7 +30,10 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<ResidentCountData>().OwnsOne(w => w.Location);
         modelBuilder.Entity<TrafficData>().OwnsOne(w => w.Location);
         modelBuilder.Entity<VisualizationData>().OwnsOne(v => v.Volume);
+        modelBuilder.Entity<VisualizationData>()
+    .Property(v => v.Geometry)
+    .HasColumnType("jsonb");
+
+
     }
-
-
 }

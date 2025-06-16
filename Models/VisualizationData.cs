@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 
 namespace YourNamespace.Models
 {
@@ -18,6 +19,13 @@ namespace YourNamespace.Models
 
         public string Stage { get; set; }
 
+        public decimal Chainage_to { get; set; }
+
+        public decimal Chainage_from { get; set; }
+
+        public decimal mean_elev { get; set; }
+
+        public JsonDocument? Geometry { get; set; }
         public DateTime Timestamp { get; set; } = DateTime.UtcNow;
     }
 }

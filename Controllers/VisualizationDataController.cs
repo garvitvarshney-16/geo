@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using YourNamespace.Models;
@@ -28,6 +29,10 @@ namespace YourNamespace.Controllers
                 ConstructionStageMasterId = input.ConstructionStageMasterId,
                 Volume = input.Volume,
                 Status = input.Status,
+                Chainage_to = input.Chainage_to,
+                Chainage_from = input.Chainage_from,
+                mean_elev = input.mean_elev,
+                Geometry = input.GeometryJson,
                 Stage = input.Stage
             };
 
