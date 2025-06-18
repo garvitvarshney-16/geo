@@ -25,7 +25,9 @@ namespace YourNamespace.Models
 
         public decimal mean_elev { get; set; }
 
-        public JsonDocument? Geometry { get; set; }
+        public JsonDocument? Geometry { get; set; } // ✅ Must be nullable with `?`
+
+
         public DateTime Timestamp { get; set; } = DateTime.UtcNow;
     }
 }
