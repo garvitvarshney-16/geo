@@ -249,9 +249,6 @@ namespace geo.Migrations
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<decimal>("mean_elev")
-                        .HasColumnType("numeric");
-
                     b.HasKey("Id");
 
                     b.ToTable("VisualizationData");

@@ -23,8 +23,6 @@ namespace YourNamespace.Models
 
         public decimal Chainage_from { get; set; }
 
-        public decimal mean_elev { get; set; }
-
         public JsonDocument? Geometry { get; set; } // ✅ Must be nullable with `?`
 
 
